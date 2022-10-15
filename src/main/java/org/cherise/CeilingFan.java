@@ -9,14 +9,14 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Board extends JPanel implements Runnable {
+public class CeilingFan extends JPanel implements Runnable {
 
     private static final int BOARD_WIDTH = 250;
     private static final int BOARD_HEIGHT = 250;
     private static final int DELAY = 500;
     private static BufferedImage fan;
 
-    public Board() throws IOException {
+    public CeilingFan() throws IOException {
         initBoard();
     }
 
@@ -85,28 +85,14 @@ public class Board extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        long startTime;
-        long timeDiff;
-        long sleep;
-
         boolean isRunning = true;
-
-        startTime = System.currentTimeMillis();
 
         while(isRunning) {
             for (int i = 0; i < 8; i++) {
                 rotateFan();
                 repaint();
 
-                timeDiff = System.currentTimeMillis() - startTime;
-                sleep = DELAY - timeDiff;
-
-                if (sleep < 0) {
-                    sleep = 2;
-                }
-
                 try {
-//                    Thread.sleep(sleep);
                     Thread.sleep(DELAY);
                 } catch (InterruptedException ie) {
                     String message = String.format("Thread interrupted: %s", ie.getMessage());
@@ -114,9 +100,8 @@ public class Board extends JPanel implements Runnable {
                     isRunning = false;
                     Thread.currentThread().interrupt();
                 }
-
-                startTime = System.currentTimeMillis();
             }
+
             try {
                 loadImage();
             } catch (IOException e) {

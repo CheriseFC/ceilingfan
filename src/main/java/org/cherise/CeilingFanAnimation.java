@@ -4,8 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
-
 public class CeilingFanAnimation extends JFrame {
 
     public CeilingFanAnimation() throws IOException {
@@ -13,7 +11,7 @@ public class CeilingFanAnimation extends JFrame {
     }
 
     private void initUI() throws IOException {
-        add(new Board());
+        add(new CeilingFan());
         setResizable(false);
         pack();
         setTitle("Ceiling Fan");
