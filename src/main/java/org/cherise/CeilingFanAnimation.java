@@ -2,31 +2,29 @@ package org.cherise;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 
 public class CeilingFanAnimation extends JFrame {
 
-    public CeilingFanAnimation() throws IOException {
+    public CeilingFanAnimation() {
         initUI();
     }
 
-    private void initUI() throws IOException {
+    private void initUI() {
         add(new CeilingFan());
         setResizable(false);
         pack();
         setTitle("Ceiling Fan");
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        addKeyListener(new CeilingFanKeyListener());
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
     }
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             JFrame ceilingFanAnimationJFrame = null;
-            try {
-                ceilingFanAnimationJFrame = new CeilingFanAnimation();
-            } catch (IOException ioe) {
-                throw new RuntimeException(ioe);
-            }
+            ceilingFanAnimationJFrame = new CeilingFanAnimation();
             ceilingFanAnimationJFrame.setVisible(true);
         });
     }

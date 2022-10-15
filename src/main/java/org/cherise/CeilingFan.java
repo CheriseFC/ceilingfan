@@ -1,5 +1,8 @@
 package org.cherise;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -11,24 +14,34 @@ import java.nio.file.Paths;
 
 public class CeilingFan extends JPanel implements Runnable {
 
-    private static final int BOARD_WIDTH = 250;
-    private static final int BOARD_HEIGHT = 250;
-    private static final int DELAY = 500;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CeilingFan.class);
+
+    private static final int CEILING_WIDTH = 250;
+    private static final int CEILING_HEIGHT = 250;
+    private static int delay = 500;
+    private static int fanSetting = 0;
+    private static int angle = 10;
+    private static boolean isFanRunning = false;
     private static BufferedImage fan;
 
-    public CeilingFan() throws IOException {
-        initBoard();
+    public CeilingFan() {
+        initCeilingFan();
     }
 
-    private void initBoard() throws IOException {
+    private void initCeilingFan() {
         setBackground(Color.WHITE);
-        setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
+        setPreferredSize(new Dimension(CEILING_WIDTH, CEILING_HEIGHT));
         loadImage();
     }
 
-    private static void loadImage() throws IOException {
+    private static void loadImage() {
         Path imagePath = Paths.get("src", "resources", "fan4.png");
-        fan = ImageIO.read(new File(imagePath.toString()));
+        try {
+            fan = ImageIO.read(new File(imagePath.toString()));
+        } catch (IOException ioe) {
+            String msg = String.format("Unable to load image: %s%n%s", imagePath, ioe);
+            LOGGER.error(msg);
+        }
     }
 
     @Override
@@ -52,12 +65,8 @@ public class CeilingFan extends JPanel implements Runnable {
         Toolkit.getDefaultToolkit().sync();
     }
 
-//    private void fanCycle() {
-//
-//    }
-
-    public static void rotateFan() {
-        double radians = Math.toRadians(-10);
+    private static void rotateFan() {
+        double radians = Math.toRadians(angle);
         double sin = Math.abs(Math.sin(radians));
         double cos = Math.abs(Math.cos(radians));
         int fanWidth = fan.getWidth();
@@ -83,29 +92,63 @@ public class CeilingFan extends JPanel implements Runnable {
         return graphicsDevice.getDefaultConfiguration();
     }
 
+    public static void increaseSpeed() {
+        if (fanSetting == 0) {
+            fanSetting++;
+            isFanRunning = true;
+        } else if (fanSetting < 3) {
+            delay = delay / 2;
+            fanSetting++;
+        } else {
+            stopFan();
+            fanSetting = 0;
+            resetDelay();
+        }
+
+        String msg = String.format("Fan speed: %s", fanSetting);
+        LOGGER.debug(msg);
+    }
+
+    public static void reverseDirection() {
+        angle = angle * -1;
+        fanSetting = 0;
+        resetDelay();
+
+        LOGGER.debug("Direction reversed");
+    }
+
+    private static void stopFan() {
+        isFanRunning = false;
+        LOGGER.debug("The fan has stopped");
+    }
+
+    private static void resetDelay() {
+        delay = 500;
+    }
+
     @Override
     public void run() {
-        boolean isRunning = true;
+        boolean loopEnabled = true;
 
-        while(isRunning) {
-            for (int i = 0; i < 8; i++) {
-                rotateFan();
+        while(loopEnabled) {
+            for (int i = 0; i < 9; i++) {
+                if(isFanRunning) {
+                    rotateFan();
+                    if (i == 8) {
+                        loadImage();
+                    }
+                }
+
                 repaint();
 
                 try {
-                    Thread.sleep(DELAY);
+                    Thread.sleep(delay);
                 } catch (InterruptedException ie) {
                     String message = String.format("Thread interrupted: %s", ie.getMessage());
                     JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-                    isRunning = false;
+                    loopEnabled = false;
                     Thread.currentThread().interrupt();
                 }
-            }
-
-            try {
-                loadImage();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         }
     }
