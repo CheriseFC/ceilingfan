@@ -13,9 +13,8 @@ public class Board extends JPanel implements Runnable {
 
     private static final int BOARD_WIDTH = 250;
     private static final int BOARD_HEIGHT = 250;
-    private static final int DELAY = 25;
-//    private transient Image fan;
-    private transient BufferedImage fan;
+    private static final int DELAY = 500;
+    private static BufferedImage fan;
 
     public Board() throws IOException {
         initBoard();
@@ -27,7 +26,7 @@ public class Board extends JPanel implements Runnable {
         loadImage();
     }
 
-    private void loadImage() throws IOException {
+    private static void loadImage() throws IOException {
         Path imagePath = Paths.get("src", "resources", "fan4.png");
         fan = ImageIO.read(new File(imagePath.toString()));
     }
@@ -40,28 +39,49 @@ public class Board extends JPanel implements Runnable {
     }
 
     @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        drawFan(g);
+    public void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
+        drawFan(graphics);
     }
 
-    private void drawFan(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
+    private void drawFan(Graphics graphics) {
+        Graphics2D graphics2D = (Graphics2D) graphics;
         int xValue = (this.getWidth() - fan.getWidth(null)) / 2;
         int yValue = (this.getHeight() - fan.getHeight(null)) / 2;
-        g2d.drawImage(fan, xValue, yValue, this);
+        graphics2D.drawImage(fan, xValue, yValue, this);
         Toolkit.getDefaultToolkit().sync();
     }
 
-//    private void cycle() {
-//        xValue += 1;
-//        yValue += 1;
+//    private void fanCycle() {
 //
-//        if (yValue > BOARD_HEIGHT) {
-//            yValue = INIT_Y;
-//            xValue = INIT_X;
-//        }
 //    }
+
+    public static void rotateFan() {
+        double radians = Math.toRadians(-10);
+        double sin = Math.abs(Math.sin(radians));
+        double cos = Math.abs(Math.cos(radians));
+        int fanWidth = fan.getWidth();
+        int fanHeight = fan.getHeight();
+        int newFanWidth = (int) Math.floor(fanWidth * cos + fanHeight * sin);
+        int newFanHeight = (int) Math.floor(fanHeight * cos + fanWidth * sin);
+
+        GraphicsConfiguration graphicsConfiguration = getDefaultConfiguration();
+
+        BufferedImage newFan = graphicsConfiguration.createCompatibleImage(newFanWidth, newFanHeight, Transparency.TRANSLUCENT);
+        Graphics2D graphics2D = newFan.createGraphics();
+        graphics2D.translate((newFanWidth - fanWidth) / 2, (newFanHeight - fanHeight) / 2);
+        graphics2D.rotate(radians, (double) fanWidth / 2, (double) fanHeight / 2);
+        graphics2D.drawRenderedImage(fan, null);
+        graphics2D.dispose();
+
+        fan = newFan;
+    }
+
+    private static GraphicsConfiguration getDefaultConfiguration() {
+        GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
+        return graphicsDevice.getDefaultConfiguration();
+    }
 
     @Override
     public void run() {
@@ -74,26 +94,34 @@ public class Board extends JPanel implements Runnable {
         startTime = System.currentTimeMillis();
 
         while(isRunning) {
-//            cycle();
-            repaint();
+            for (int i = 0; i < 8; i++) {
+                rotateFan();
+                repaint();
 
-            timeDiff = System.currentTimeMillis() - startTime;
-            sleep = DELAY - timeDiff;
+                timeDiff = System.currentTimeMillis() - startTime;
+                sleep = DELAY - timeDiff;
 
-            if (sleep < 0) {
-                sleep = 2;
+                if (sleep < 0) {
+                    sleep = 2;
+                }
+
+                try {
+//                    Thread.sleep(sleep);
+                    Thread.sleep(DELAY);
+                } catch (InterruptedException ie) {
+                    String message = String.format("Thread interrupted: %s", ie.getMessage());
+                    JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+                    isRunning = false;
+                    Thread.currentThread().interrupt();
+                }
+
+                startTime = System.currentTimeMillis();
             }
-
             try {
-                Thread.sleep(sleep);
-            } catch (InterruptedException ie) {
-                String message = String.format("Thread interrupted: %s", ie.getMessage());
-                JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-                isRunning = false;
-                Thread.currentThread().interrupt();
+                loadImage();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-
-            startTime = System.currentTimeMillis();
         }
     }
 }

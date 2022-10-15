@@ -15,7 +15,8 @@ public class CeilingFanAnimation extends JFrame {
     private void initUI() throws IOException {
         add(new Board());
         setResizable(false);
-        pack();setTitle("Ceiling Fan");
+        pack();
+        setTitle("Ceiling Fan");
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
