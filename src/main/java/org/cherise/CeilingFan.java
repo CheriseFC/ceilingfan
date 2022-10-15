@@ -7,10 +7,9 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * @author Cherise Franklin-Clarke
@@ -43,11 +42,11 @@ public class CeilingFan extends JPanel implements Runnable {
     }
 
     private static void loadImage() {
-        Path imagePath = Paths.get("src", "resources", "fan4.png");
+        InputStream inputStream = ClassLoader.getSystemResourceAsStream("fan4.png");
         try {
-            fan = ImageIO.read(new File(imagePath.toString()));
+            fan = ImageIO.read(Objects.requireNonNull(inputStream));
         } catch (IOException ioe) {
-            String msg = String.format("Unable to load image: %s%n%s", imagePath, ioe);
+            String msg = String.format("Unable to load image: %s%n%s", inputStream, ioe);
             LOGGER.error(msg);
         }
     }
