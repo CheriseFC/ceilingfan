@@ -3,8 +3,16 @@ package org.cherise;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * @author Cherise Franklin-Clarke
+ *
+ * main class
+ */
 public class CeilingFanAnimation extends JFrame {
 
+    /**
+     * Method used to initialize the UI
+     */
     public CeilingFanAnimation() {
         initUI();
     }
@@ -21,6 +29,10 @@ public class CeilingFanAnimation extends JFrame {
         setFocusTraversalKeysEnabled(false);
     }
 
+    /**
+     * main method
+     * @param args
+     */
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             JFrame ceilingFanAnimationJFrame = null;

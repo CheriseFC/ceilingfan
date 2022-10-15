@@ -12,6 +12,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * @author Cherise Franklin-Clarke
+ *
+ * JPanel class
+ */
 public class CeilingFan extends JPanel implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CeilingFan.class);
@@ -24,6 +29,9 @@ public class CeilingFan extends JPanel implements Runnable {
     private static boolean isFanRunning = false;
     private static BufferedImage fan;
 
+    /**
+     * Method to initialize the fan
+     */
     public CeilingFan() {
         initCeilingFan();
     }
@@ -44,6 +52,9 @@ public class CeilingFan extends JPanel implements Runnable {
         }
     }
 
+    /**
+     * Method used for initialization tasks
+     */
     @Override
     public void addNotify() {
         super.addNotify();
@@ -51,6 +62,10 @@ public class CeilingFan extends JPanel implements Runnable {
         animator.start();
     }
 
+    /**
+     * Method for custom painting
+     * @param graphics the <code>Graphics</code> object to protect
+     */
     @Override
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
@@ -92,6 +107,9 @@ public class CeilingFan extends JPanel implements Runnable {
         return graphicsDevice.getDefaultConfiguration();
     }
 
+    /**
+     * Method used to increase the fan speed
+     */
     public static void increaseSpeed() {
         if (fanSetting == 0) {
             fanSetting++;
@@ -109,6 +127,9 @@ public class CeilingFan extends JPanel implements Runnable {
         LOGGER.debug(msg);
     }
 
+    /**
+     * Method used to reverse the direction of the fan's rotation
+     */
     public static void reverseDirection() {
         angle = angle * -1;
         fanSetting = 0;
@@ -126,6 +147,9 @@ public class CeilingFan extends JPanel implements Runnable {
         delay = 500;
     }
 
+    /**
+     * Method used to animate the fan's rotation using a Thread
+     */
     @Override
     public void run() {
         boolean loopEnabled = true;
